@@ -1,6 +1,6 @@
 import requests
 from app.config import Config
-from app.helpers import fields_by_platform
+from app.helpers import get_fields_by_platform
 
 
 def search_all_platforms():
@@ -49,7 +49,7 @@ def search_accounts_from_platform(platform):
 
 
 def search_insights_for_account(platform, account_id, token, fields=''):
-    fields = fields_by_platform(platform)
+    fields = get_fields_by_platform(platform)
     url = f"{Config.API_BASE_URL}/insights?platform={platform}&account={account_id}&token={token}&fields={fields}"
     headers = {"Authorization": Config.API_TOKEN}
 
@@ -70,3 +70,4 @@ def get_insights_by_account_name(plataforma):
         }
         all_insights.append(insight_with_name)
     return all_insights
+
