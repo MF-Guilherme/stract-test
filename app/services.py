@@ -12,10 +12,19 @@ def search_all_platforms():
     return response.json() if response.status_code == 200 else {"error", "Falha ao buscar as plataformas na api terceira"}
 
 
+def get_platform_name(platform):
+    platforms_response = search_all_platforms()
+    platforms = platforms_response.get("platforms", [])
+    for p in platforms:
+        if p['value'] == platform:
+            return p['text']
+    return None
+
+
 def search_accounts_from_platform(platform):
     all_accounts = []
     page = 1
-
+    platform_name = get_platform_name(platform)
     while True:
         url = f"{Config.API_BASE_URL}/accounts?platform={platform}&page={page}"
         headers = {"Authorization": Config.API_TOKEN}
@@ -26,7 +35,10 @@ def search_accounts_from_platform(platform):
         if not data.get("accounts"):
             break
 
-        all_accounts.extend(data["accounts"])
+        for account in data["accounts"]:
+            account["platform_name"] = platform_name
+            # Use append instead of extend to avoid duplication
+            all_accounts.append(account)
 
         if "pagination" not in data or page >= data["pagination"].get("total", page):
             break
@@ -42,17 +54,17 @@ def search_insights_for_account(platform, account_id, token, fields=''):
     headers = {"Authorization": Config.API_TOKEN}
 
     response = requests.get(url, headers=headers)
-    data = response.json()
-
-    return data if response.status_code == 200 else {"error", "Falha ao buscar os insights na api terceira"}
+    return response.json() if response.status_code == 200 else {"error", "Falha ao buscar os insights na api terceira"}
 
 
 def get_insights_by_account_name(plataforma):
     accounts = search_accounts_from_platform(plataforma)
     all_insights = []
     for account in accounts:
-        insight = search_insights_for_account(plataforma, account['id'], account['token'])
+        insight = search_insights_for_account(
+            plataforma, account['id'], account['token'])
         insight_with_name = {
+            'platform': account['platform_name'],
             'account_name': account['name'],
             'insights': insight.get('insights', [])
         }
