@@ -1,6 +1,6 @@
 import requests
 from app.config import Config
-from app.utils import fields_by_platform
+from app.helpers import fields_by_platform
 
 
 def search_all_platforms():
@@ -42,5 +42,19 @@ def search_insights_for_account(platform, account_id, token, fields=''):
     headers = {"Authorization": Config.API_TOKEN}
 
     response = requests.get(url, headers=headers)
+    data = response.json()
 
-    return response.json() if response.status_code == 200 else {"error", "Falha ao buscar os insights na api terceira"}
+    return data if response.status_code == 200 else {"error", "Falha ao buscar os insights na api terceira"}
+
+
+def get_insights_by_account_name(plataforma):
+    accounts = search_accounts_from_platform(plataforma)
+    all_insights = []
+    for account in accounts:
+        insight = search_insights_for_account(plataforma, account['id'], account['token'])
+        insight_with_name = {
+            'account_name': account['name'],
+            'insights': insight.get('insights', [])
+        }
+        all_insights.append(insight_with_name)
+    return all_insights
