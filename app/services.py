@@ -1,6 +1,6 @@
 import requests
 from app.config import Config
-from app.helpers import get_fields_by_platform
+from app.helpers import get_fields_by_platform, map_fields
 
 
 def search_all_platforms():
@@ -37,7 +37,6 @@ def search_accounts_from_platform(platform):
 
         for account in data["accounts"]:
             account["platform_name"] = platform_name
-            # Use append instead of extend to avoid duplication
             all_accounts.append(account)
 
         if "pagination" not in data or page >= data["pagination"].get("total", page):
@@ -54,7 +53,14 @@ def search_insights_for_account(platform, account_id, token, fields=''):
     headers = {"Authorization": Config.API_TOKEN}
 
     response = requests.get(url, headers=headers)
-    return response.json() if response.status_code == 200 else {"error", "Falha ao buscar os insights na api terceira"}
+    insights = response.json() if response.status_code == 200 else {
+        "error": "Falha ao buscar os insights na api terceira"}
+
+    if "insights" in insights:
+        insights["insights"] = [map_fields(
+            insight, platform) for insight in insights["insights"]]
+
+    return insights
 
 
 def get_insights_by_account_name(plataforma):
@@ -70,4 +76,3 @@ def get_insights_by_account_name(plataforma):
         }
         all_insights.append(insight_with_name)
     return all_insights
-
