@@ -27,6 +27,7 @@ def get_fields_by_platform(platform):
 
 
 def map_fields(insight, platform):
+    # TODO - fazer com que os campos mapeados sejam dinâmicos e não fixos
     field_mapping = {
         'ga4': {
             'adName': 'ad_name',

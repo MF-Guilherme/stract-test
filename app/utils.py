@@ -74,6 +74,7 @@ def export_collapsed_platform_report(plataforma):
 
 
 def export_general_report():
+    # TODO fazer com que platforms seja dinâmico e não fixo
     platforms = ['ga4', 'tiktok_insights', 'meta_ads']
     all_data = []
 
