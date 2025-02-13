@@ -55,17 +55,17 @@ def export_collapsed_platform_report(plataforma):
     if 'id' in df.columns:
         df = df.drop(columns=['id'])
 
-    columns = ['platform'] + [col for col in df.columns if col != 'platform']
-    df = df[columns]
-
+    # Agrupar por account_name e platform, e somar colunas numéricas
     numeric_cols = df.select_dtypes(include='number').columns
-    df_collapsed = df.groupby('account_name').agg({**{col: 'sum' for col in numeric_cols}, **{
-        col: 'first' for col in df.columns if col not in numeric_cols and col != 'account_name'}}).reset_index()
+    df_collapsed = df.groupby(['platform','account_name']).agg({**{col: 'sum' for col in numeric_cols}, **{
+        col: 'first' for col in df.columns if col not in numeric_cols and col != 'account_name' and col != 'platform'}}).reset_index()
 
+    # Deixar colunas de texto vazias, exceto account_name e platform
     for col in df_collapsed.columns:
-        if col not in numeric_cols and col != 'account_name':
+        if col not in numeric_cols and col != 'account_name' and col != 'platform':
             df_collapsed[col] = ''
 
+    # Aplicar a função replace_dot_with_comma após o agrupamento
     df_collapsed = df_collapsed.apply(replace_dot_with_comma)
 
     df_collapsed.columns = df_collapsed.columns.str.title()
