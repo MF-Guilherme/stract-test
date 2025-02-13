@@ -33,7 +33,7 @@ def export_platform_report(plataforma):
 
     df.columns = df.columns.str.title()
 
-    csv_filename = f'{plataforma}_report.csv'
+    csv_filename = f'{platform_name}_report.csv'
     df.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
@@ -68,7 +68,7 @@ def export_collapsed_platform_report(plataforma):
 
     df_collapsed.columns = df_collapsed.columns.str.title()
 
-    csv_filename = f'{plataforma}_resumo_report.csv'
+    csv_filename = f'{platform_name}_resumo_report.csv'
     df_collapsed.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
@@ -96,12 +96,15 @@ def export_general_report():
     if 'id' in df.columns:
         df = df.drop(columns=['id'])
 
+    columns = ['platform'] + [col for col in df.columns if col != 'platform']
+    df = df[columns]
+
     df = df.apply(replace_dot_with_comma)
 
     df.columns = df.columns.str.title()
     df2 = df.replace('nan', '', regex=True)
 
-    csv_filename = 'general_report.csv'
+    csv_filename = 'Geral_report.csv'
     df2.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
@@ -136,11 +139,14 @@ def export_collapsed_general_report():
         if col not in numeric_cols and col != 'platform':
             df_collapsed[col] = ''
 
+    columns = ['platform'] + [col for col in df.columns if col != 'platform']
+    df = df[columns]
+
     df_collapsed = df_collapsed.apply(replace_dot_with_comma)
 
     df_collapsed.columns = df_collapsed.columns.str.title()
 
-    csv_filename = 'geral_resumo_report.csv'
+    csv_filename = 'Geral_Resumo_report.csv'
     df_collapsed.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
