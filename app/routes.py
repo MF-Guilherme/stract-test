@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from app.utils import export_platform_report, export_collapsed_platform_report, export_general_report
+from app.utils import export_platform_report, export_collapsed_platform_report, export_general_report, export_collapsed_general_report
 
 
 bp = Blueprint("routes", __name__)
@@ -27,6 +27,11 @@ def resume_platform_report(plataforma):
 @bp.route("/geral", methods=["GET"])
 def general_report():
     return export_general_report()
+
+
+@bp.route("/geral/resumo", methods=["GET"])
+def general_collapsed_report():
+    return export_collapsed_general_report()
 
 
 def register_routes(app):
