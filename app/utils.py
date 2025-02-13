@@ -1,6 +1,6 @@
 from app.services import get_insights_by_account_name, search_all_platforms
 import pandas as pd
-
+import numpy as np
 
 def replace_dot_with_comma(series):
     if pd.api.types.is_numeric_dtype(series):
@@ -98,8 +98,9 @@ def export_general_report():
     df = df.apply(replace_dot_with_comma)
 
     df.columns = df.columns.str.title()
+    df2 = df.replace('nan', '', regex=True)
 
     csv_filename = 'general_report.csv'
-    df.to_csv(csv_filename, sep=';', index=False)
+    df2.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
