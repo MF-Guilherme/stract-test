@@ -1,4 +1,4 @@
-# Relatórios de Insights de Anúncios
+# Relatórios de Insights de Anúncios (Stract)
 
 Este projeto é uma API em Flask que consome dados de uma API externa para gerar relatórios de anúncios em formato CSV. Ele coleta insights de diversas plataformas de anúncios e os organiza de forma estruturada.
 
@@ -77,7 +77,7 @@ A API estará rodando em: `http://127.0.0.1:5000/` ou `localhost:5000/`
 | GET    | `/geral`                   | Relatório de todas as plataformas |
 | GET    | `/geral/resumo`            | Relatório resumido de todas as plataformas |
 
-📌 **Observação:** O parâmetro `{plataforma}` deve ser o mesmo valor presente no campo **###`value`** da resposta do endpoint externo `https://sidebar.stract.to/api/platforms`. Exemplos de valores aceitos:
+📌 **Observação:** O parâmetro `{plataforma}` deve ser o mesmo valor presente no campo **`value`** da resposta do endpoint externo `https://sidebar.stract.to/api/platforms`. Exemplos de valores aceitos (campo **`value`**):
 
 ```json
 {
