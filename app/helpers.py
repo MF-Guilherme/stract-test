@@ -24,3 +24,31 @@ def get_fields_by_platform(platform):
         page += 1
 
     return ",".join(fields)
+
+
+def map_fields(insight, platform):
+    field_mapping = {
+        'ga4': {
+            'adName': 'ad_name',
+            'region': 'country',
+            'cost': 'spend'
+        },
+        'tiktok_insights': {
+            'cost': 'spend'
+        },
+        'meta_ads': {
+            'cpc': 'cost_per_click',
+            'effective_status': 'status',
+            'global_objective': 'objective'
+        }
+    }
+
+    mapped_insight = {}
+    for key, value in insight.items():
+        if key in field_mapping.get(platform, {}):
+            mapped_key = field_mapping[platform][key]
+        else:
+            mapped_key = key
+        mapped_insight[mapped_key] = value
+
+    return mapped_insight
