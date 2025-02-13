@@ -1,6 +1,7 @@
-from app.services import get_insights_by_account_name, search_all_platforms
+from app.services import get_insights_by_account_name
 import pandas as pd
 import numpy as np
+
 
 def replace_dot_with_comma(series):
     if pd.api.types.is_numeric_dtype(series):
@@ -32,7 +33,7 @@ def export_platform_report(plataforma):
 
     df.columns = df.columns.str.title()
 
-    csv_filename = f'{plataforma}_report.csv'
+    csv_filename = f'{platform_name}_report.csv'
     df.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
@@ -67,7 +68,7 @@ def export_collapsed_platform_report(plataforma):
 
     df_collapsed.columns = df_collapsed.columns.str.title()
 
-    csv_filename = f'{plataforma}_resumo_report.csv'
+    csv_filename = f'{platform_name}_resumo_report.csv'
     df_collapsed.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
@@ -95,12 +96,57 @@ def export_general_report():
     if 'id' in df.columns:
         df = df.drop(columns=['id'])
 
+    columns = ['platform'] + [col for col in df.columns if col != 'platform']
+    df = df[columns]
+
     df = df.apply(replace_dot_with_comma)
 
     df.columns = df.columns.str.title()
     df2 = df.replace('nan', '', regex=True)
 
-    csv_filename = 'general_report.csv'
+    csv_filename = 'Geral_report.csv'
     df2.to_csv(csv_filename, sep=';', index=False)
+
+    return csv_filename
+
+
+def export_collapsed_general_report():
+    platforms = ['ga4', 'tiktok_insights', 'meta_ads']
+    all_data = []
+
+    for platform in platforms:
+        insights = get_insights_by_account_name(platform)
+        for account in insights:
+            platform_name = account['platform']
+            account_name = account['account_name']
+            for insight in account['insights']:
+                insight['platform'] = platform_name
+                insight['account_name'] = account_name
+                if platform == 'ga4' and 'spend' in insight and 'clicks' in insight:
+                    insight['cost_per_click'] = insight['spend'] / insight['clicks'] if insight['clicks'] > 0 else None
+                all_data.append(insight)
+
+    df = pd.DataFrame(all_data)
+
+    if 'id' in df.columns:
+        df = df.drop(columns=['id'])
+
+    numeric_cols = df.select_dtypes(include='number').columns
+    df_collapsed = df.groupby('platform').agg({**{col: 'sum' for col in numeric_cols}, **{
+        col: 'first' for col in df.columns if col not in numeric_cols and col != 'platform'}}).reset_index()
+
+    for col in df_collapsed.columns:
+        if col not in numeric_cols and col != 'platform':
+            df_collapsed[col] = ''
+
+    columns = ['platform'] + [col for col in df.columns if col != 'platform']
+    df = df[columns]
+
+    df_collapsed = df_collapsed.apply(replace_dot_with_comma)
+
+    df_collapsed.columns = df_collapsed.columns.str.title()
+
+    csv_filename = 'Geral_Resumo_report.csv'
+    df_collapsed.to_csv(csv_filename, sep=';', index=False)
 
     return csv_filename
